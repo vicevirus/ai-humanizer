@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Humanizer Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+            font-size: 1em;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .note {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #555;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h2>AI Humanizer</h2>
+    
+    <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+    <br>
+    <button onclick="humanizeText()">Humanize</button>
+    <br>
+    
+    <div class="result">
+        <h3>Result:</h3>
+        <textarea id="outputText" readonly></textarea>
+    </div>
+
+    <div class="note">
+        <p>Note: This may not look nice on certain texts. Re-read and adjust accordingly. Credits to <strong>Tzion0 <a href='https://x.com/M53CTF'>@M53</a></strong> for the concept.</p>
+    </div>
+
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+
+        WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+            go.run(result.instance);
+        });
+
+        function humanizeText() {
+            const input = document.getElementById('inputText').value;
+            
+            // Ensure the WASM function is available
+            if (typeof humanizeTextWASM !== 'function') {
+                alert('WASM module is not loaded yet. Please try again in a moment.');
+                return;
+            }
+
+            const output = humanizeTextWASM(input);
+            document.getElementById('outputText').value = output;
+        }
+
+        document.getElementById('inputText').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                humanizeText(); 
+            }
+        });
+    </script>
+</body>
+</html>
